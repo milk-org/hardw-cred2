@@ -1,5 +1,6 @@
 
-Note from Stephane @ FLI:
+========== Note from Stephane @ FLI [March 14, 2018] ==============
+
 
 After each answer of the camera, you get the following additional sequence of character:  
 CR LF “fli-cli>” ( ‘\r’ ‘\n’ ‘f’ ‘l’ ‘i’ ‘-‘ ’c’ ‘l’ ‘i’ ‘>’ ).
@@ -7,4 +8,37 @@ CR LF “fli-cli>” ( ‘\r’ ‘\n’ ‘f’ ‘l’ ‘i’ ‘-‘ ’c’
 Not only CR (=0D). Some display commands send some CR before the end of the command.
 
 
-xyz14
+========== Notes from Dan [March 14, 2018] ========================
+
+- I tried running the camera with the prior config file and it failed. 
+Luckily, Cliff from EDT helped me modify the file and get everything working.
+
+- The only change is in line 78: [#htaps: 2] needs to be uncommented and changed to 4 [htaps: 4]
+
+- Cliff also noted that we may have to play with the bitdepth in the future:
+
+     - 16 will work since the camera outputs 16bit streams. However, since 
+     the data itself is 14 bit, the images may come out dimmer than expected.
+
+     - He says we can play with lines 39, 40, and 55 in the file. Mix and 
+     match 14, 16, and 3D accordingly to see if the image improves.
+
+- Finally, if you try to use vlviewer, directly, it crashes when you load the config file. 
+Cliff does not know what is causing this. 
+However, you can initialize the camera separately and then open vlviewer and that'll work. 
+Once this is done, vlviewer will run as expected. Here is the order of commands to run:
+
+     1) ./initcam -c 0 -f camera_config/DE2_generic16cl.cfg
+
+                 [this initializes the FG and sets the config file]
+
+     2) ./vlviewer
+
+                 [open vlviewer bypassing the config selection since this is already done]
+
+
+Cliff said he would look into the last problem (vlviewer crashing on config selection) and let us know if he figured something out.
+
+Feel free to reach out if you have any questions.
+
+
