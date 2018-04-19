@@ -10,5 +10,6 @@ See vendor [product link](https://edt.com/product/visionlink-f4/) and [SDK](http
 
 Follow [instructions provided by EDT](https://edt.com/pdv_run_installation_instructions/)
 
-Installation directory is ~/src/EDT/
+Installation directory is ~/src/EDT/ on scexao2 computer (kernel 3.13.0-43-generic)
+
 
