@@ -12,8 +12,8 @@ Follow [instructions provided by EDT](https://edt.com/pdv_run_installation_instr
 
 Installation requires kernel sources:
 
-  sudo apt-get update
-  sudo apt-get install linux-source
+    sudo apt-get update
+    sudo apt-get install linux-source
 
 Installation directory is ~/src/EDT/ on scexao2 computer (kernel 3.13.0-43-generic)
 
