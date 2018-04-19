@@ -1,0 +1,10 @@
+
+Note from Stephane @ FLI:
+
+After each answer of the camera, you get the following additional sequence of character:  
+CR LF “fli-cli>” ( ‘\r’ ‘\n’ ‘f’ ‘l’ ‘i’ ‘-‘ ’c’ ‘l’ ‘i’ ‘>’ ).
+
+Not only CR (=0D). Some display commands send some CR before the end of the command.
+
+
+
