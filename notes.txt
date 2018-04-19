@@ -7,4 +7,4 @@ CR LF “fli-cli>” ( ‘\r’ ‘\n’ ‘f’ ‘l’ ‘i’ ‘-‘ ’c’
 Not only CR (=0D). Some display commands send some CR before the end of the command.
 
 
-xyz
+xyz1234
