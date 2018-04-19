@@ -8,7 +8,9 @@ CR LF “fli-cli>” ( ‘\r’ ‘\n’ ‘f’ ‘l’ ‘i’ ‘-‘ ’c’
 Not only CR (=0D). Some display commands send some CR before the end of the command.
 
 
-========== Notes from Dan [March 14, 2018] ========================
+
+
+========== Note from Dan [March 14, 2018] =========================
 
 - I tried running the camera with the prior config file and it failed. 
 Luckily, Cliff from EDT helped me modify the file and get everything working.
@@ -40,5 +42,49 @@ Once this is done, vlviewer will run as expected. Here is the order of commands 
 Cliff said he would look into the last problem (vlviewer crashing on config selection) and let us know if he figured something out.
 
 Feel free to reach out if you have any questions.
+
+
+
+========== Note from Dan [March 16, 2018] =========================
+
+There's been another change to the config file. The previous version works 
+for taking images but serial communication was not possible; I had to change 
+the baud and terminator. Nem mentioned that you would be starting on the FG 
+and CRED2 today so I figured I'd send the newest version in case this save 
+you some time. We've now got our grabber working with the camera on Python 
+using this config file so it should work for you as well.
+
+
+
+========== Note from Dan [April 5, 2018] =========================
+
+I've attached our code here.
+
+
+    cred2_FGSetup_14bit.cfg and cred2_FGSetup_16bit.cfg:
+        These are the conf files for the FG. The 14bit is only useful when 
+        you're testing things with the default EDT viewer (vlviewer) since 
+        it lets you get the full contrast on the display.
+        Otherwise, you should use 16bit since it'll include all the data in 
+        case you start using the internal bias/flat features on the camera. 
+        I can explain more if you'd like.
+    edtlib.py:
+        This is the control library. It's adapted from some code that Sylvain 
+        Cetre (Keck) wrote for a Little Joe camera they had. I've tried to 
+        comment my changes. I can explain things as needed.
+    demo.py:
+        This is a brief demo script showing how we've been using the edtlib.
+    demoReadShm.py and demoWriteShm.py:
+        These are demo scripts showing how we've been reading/writing to shared memory.
+    shmlib.py:
+        This is the library for writing to, and reading from, shared memory. It looks 
+        like it's been adapted from the scexao shared memory library.
+
+
+Our computer and instrument are currently en-route to Hilo so I won't be able to 
+work on the code or test anything for the next few days but once Nem and Jacques 
+get it assembled there, I can start coding again. Nevertheless, I can explain the 
+code or help in whatever other capacity you may need in the meantime.
+
 
 
