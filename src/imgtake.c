@@ -33,24 +33,14 @@ static void
 save_image(u_char * image_p, int width, int height, int depth,
         char *basename, int count);
 
-/*
- * Main module. NO_MAIN is typically only defined when compiling for vxworks; if you
- * want to use this code outside of a main module in any other OS, just copy the code
- * and modify it to work as a standalone subroutine, including adding parameters in
- * place of the command line arguments
- */
-#ifdef NO_MAIN
-#include "opt_util.h"
-char *argument ;
-int option ;
-    int
-simple_take(char *command_line)
-#else
+
+
+
+
     int
 main(argc, argv)
     int     argc;
     char  **argv;
-#endif
 {
     int     i;
     int     unit = 0;
