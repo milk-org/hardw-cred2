@@ -66,6 +66,7 @@ main(argc, argv)
 	unsigned short int *imageushort;
 	double value_ave;
 	int pix;
+	int exposure = 100; // exposure time [ms]
 
     progname = argv[0];
 
@@ -181,8 +182,10 @@ main(argc, argv)
     depth = pdv_get_depth(pdv_p);
     cameratype = pdv_get_cameratype(pdv_p);
 
+	sleep(1.0);
+	pdv_set_exposure(pdv_p, exposure);
+	sleep(1.0);
 	
-
     /*
      * allocate four buffers for optimal pdv ring buffer pipeline (reduce if
      * memory is at a premium)
@@ -191,6 +194,7 @@ main(argc, argv)
 
     printf("reading %d image%s from '%s'\nwidth %d height %d depth %d\n",
             loops, loops == 1 ? "" : "s", cameratype, width, height, depth);
+    printf("exposure = %d\n", exposure);
 
 	imageushort = (unsigned short *) malloc(sizeof(unsigned short)*width*height);
 
