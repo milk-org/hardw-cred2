@@ -21,3 +21,9 @@ Installation directory is ~/src/EDT/ on scexao2 computer (kernel 3.13.0-43-gener
 # Installing EDT PDV software for Linux
 
 [Device configuration guide](https://edt.com/downloads/ad_config_guide/)
+
+
+## Hardware Initialization of Camera
+
+	/opt/EDTpdv/initcam -c 0 -f cred2_FGSetup_14bit.cfg 
+
