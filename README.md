@@ -19,7 +19,10 @@ Installation requires kernel sources:
 Installation directory is ~/src/EDT/ on scexao2 computer (kernel 3.13.0-43-generic)
 
 ## Installing EDT PDV software for Linux
-Download the files from (https://edt.com/pdv_run_installation_instructions/). Right-click on the link, then select “Save link” from the drop-down menu. 
+1. Download the files from (https://edt.com/pdv_run_installation_instructions/). Right-click on the link, then select “Save link” from the drop-down menu. 
+2. Save the EDTpdv_lnx_5.5.5.1.run file to some temporary directory. Then change to that directory and run
+    chmod +x EDTpdv_lnx_5.5.5.1.run
+    sudo ./EDTpdv_lnx_5.5.5.1.run
 
 
 [Device configuration guide](https://edt.com/downloads/ad_config_guide/)

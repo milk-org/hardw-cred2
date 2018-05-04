@@ -28,6 +28,9 @@
 
 #include "edtinc.h"
 
+
+
+
 static void usage(char *progname, char *errmsg);
 static void 
 save_image(u_char * image_p, int width, int height, int depth,
@@ -59,11 +62,7 @@ main(argc, argv)
     int     width, height, depth;
     char    edt_devname[128];
     int     channel = 0;
-#ifdef NO_MAIN
-    char **argv  = 0 ;
-    int argc = 0 ;
-    opt_create_argv("simple_take",command_line,&argc,&argv);
-#endif
+
 
     progname = argv[0];
 
@@ -79,33 +78,6 @@ main(argc, argv)
     {
         switch (argv[0][1])
         {
-            case 'u':		/* device unit number */
-                ++argv;
-                --argc;
-                if (argc < 1) 
-                    usage(progname, "Error: option 'u' requires an argument\n");
-                if  ((argv[0][0] >= '0') && (argv[0][0] <= '9'))
-                    unit = atoi(argv[0]);
-                else strncpy(edt_devname, argv[0], sizeof(edt_devname) - 1);
-                break;
-
-            case 'c':		/* device channel number */
-                ++argv;
-                --argc;
-                if (argc < 1) 
-                {
-                    usage(progname, "Error: option 'c' requires a numeric argument\n");
-                }
-                if ((argv[0][0] >= '0') && (argv[0][0] <= '9'))
-                {
-                    channel = atoi(argv[0]);
-                }
-                else 
-                {
-                    usage(progname, "Error: option 'c' requires a numeric argument\n");
-                }
-                break;
-
             case 'N':
                 ++argv;
                 --argc;
@@ -296,6 +268,9 @@ main(argc, argv)
     exit(0);
 }
 
+
+
+
     static void
 save_image(u_char * image_p, int s_width, int s_height, int s_depth, char *tmpname, int count)
 {
@@ -350,6 +325,8 @@ save_image(u_char * image_p, int s_width, int s_height, int s_depth, char *tmpna
 }
 
 
+
+
     static void
 usage(char *progname, char *errmsg)
 {
@@ -361,8 +338,6 @@ usage(char *progname, char *errmsg)
     printf("  -b fname        output to MS bitmap file\n");
     printf("  -l loops        number of loops (images to take)\n");
     printf("  -N numbufs      number of ring buffers (see users guide) (default 4)\n");
-    printf("  -u unit         %s unit number (default 0)\n", EDT_INTERFACE);
-    printf("  -c channel      %s channel number (default 0)\n", EDT_INTERFACE);
     printf("  -h              this help message\n");
     exit(1);
 }
