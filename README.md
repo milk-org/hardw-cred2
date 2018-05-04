@@ -25,6 +25,9 @@ Save the EDTpdv_lnx_5.5.5.1.run file to some temporary directory. Then change to
 
     chmod +x EDTpdv_lnx_5.5.5.1.run
     sudo ./EDTpdv_lnx_5.5.5.1.run
+or
+
+    sudo ./EDTpdv_lnx_version.run /opt/EDTpdv
 
 
 [Device configuration guide](https://edt.com/downloads/ad_config_guide/)

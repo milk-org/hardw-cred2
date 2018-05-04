@@ -62,7 +62,10 @@ main(argc, argv)
     int     width, height, depth;
     char    edt_devname[128];
     int     channel = 0;
-
+	
+	unsigned short int *imageushort;
+	double value_ave;
+	int pix;
 
     progname = argv[0];
 
@@ -178,6 +181,8 @@ main(argc, argv)
     depth = pdv_get_depth(pdv_p);
     cameratype = pdv_get_cameratype(pdv_p);
 
+	
+
     /*
      * allocate four buffers for optimal pdv ring buffer pipeline (reduce if
      * memory is at a premium)
@@ -186,6 +191,8 @@ main(argc, argv)
 
     printf("reading %d image%s from '%s'\nwidth %d height %d depth %d\n",
             loops, loops == 1 ? "" : "s", cameratype, width, height, depth);
+
+	imageushort = (unsigned short *) malloc(sizeof(unsigned short)*width*height);
 
     /*
      * prestart the first image or images outside the loop to get the
@@ -250,6 +257,14 @@ main(argc, argv)
         }
         if (*bmpfname)
             save_image(image_p, width, height, depth, bmpfname, (loops > 1?i:-1));
+            
+        imageushort = (unsigned short *) image_p;
+        
+        value_ave = 0.0;
+        for(pix=0; pix < width*height; pix++)
+			value_ave += imageushort[pix];
+        value_ave /= width*height;
+        printf("Average value = %lf\n", value_ave);
 
     }
     puts("");
@@ -265,6 +280,9 @@ main(argc, argv)
 
     if (overruns || timeouts)
         exit(2);
+
+	free(imageushort);
+
     exit(0);
 }
 
