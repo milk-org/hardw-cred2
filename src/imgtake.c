@@ -48,6 +48,7 @@ main(argc, argv)
     int     i;
     int     unit = 0;
     int     overrun, overruns=0;
+    int timeout;
     int     timeouts, last_timeouts = 0;
     int     recovering_timeout = FALSE;
     char   *progname ;
@@ -66,7 +67,7 @@ main(argc, argv)
 	unsigned short int *imageushort;
 	double value_ave;
 	int pix;
-	int exposure = 100; // exposure time [ms]
+	int exposure = 0.1; // exposure time [ms]
 
     progname = argv[0];
 
@@ -180,12 +181,17 @@ main(argc, argv)
     width = pdv_get_width(pdv_p);
     height = pdv_get_height(pdv_p);
     depth = pdv_get_depth(pdv_p);
+    timeout = pdv_get_timeout(pdv_p);
     cameratype = pdv_get_cameratype(pdv_p);
-
-	sleep(1.0);
-	pdv_set_exposure(pdv_p, exposure);
-	sleep(1.0);
 	
+	printf("Timeout    : %d\n", timeout);
+	printf("Camera type: %s\n", cameratype);
+
+
+	pdv_set_exposure(pdv_p, exposure);
+
+
+		
     /*
      * allocate four buffers for optimal pdv ring buffer pipeline (reduce if
      * memory is at a premium)
