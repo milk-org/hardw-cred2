@@ -1,61 +1,54 @@
-/**
- * @file
- * An example program to show usage of EDT PCI DV library to acquire and
- * optionally save single or multiple images from devices connected to EDT
- * high speed digital imaging interface such as the PCI DV C-Link or PCI DV
- * FOX / RCX.
+/*
  * 
- * Provided as a starting point example for adding digital image acquisition
- * to a user application.  Includes optimization strategies that take
- * advantage of the EDT ring buffer library subroutines for pipelining image
- * acquisition and subsequent processing. This allows you to achieve higher
- * performance than would normally be possible through a basic acquire/process
- * scheme.
- *
- * The name is somewhat misleading -- because of the parallel aspect,
- * it really isn't the simplest way to do image acquisition.  For a
- * stone-simple example, see simplest_take.c.
  * 
- * For more more complex operations, including error detection, diagnostics,
- * changing camera exposure times, and tuning the acquisition in various
- * ways, refer to the take.c utility. For serial, see serial_cmd.c.
+ * Compile with:
+ * gcc imgtake.c -o imgtake -I/opt/EDTpdv 
+ * -I/home/scexao/src/cacao/src/ImageStreamIO 
+ * -I/home/scexao/src/cacao/src 
+ * /home/scexao/src/cacao/src/ImageStreamIO/ImageStreamIO.c 
  * 
- * For a sample Windows GUI application code, see wintake.
+ * /opt/EDTpdv/libpdv.a -lm -lpthread -ldl 
  * 
- * (C) 1997-2007 Engineering Design Team, Inc.
+ * 
  */
+ 
+#define _GNU_SOURCE
+ 
+ 
+#include <sched.h>
+#include <unistd.h>
+
 
 
 #include "edtinc.h"
+#include "ImageStruct.h"
+#include "ImageStreamIO.h"
+#include "cred2struct.h"
+
+
+
+
+CRED2STRUCT *ircamconf;
 
 
 
 
 static void usage(char *progname, char *errmsg);
-static void 
-save_image(u_char * image_p, int width, int height, int depth,
-        char *basename, int count);
 
 
 
 
-
-    int
-main(argc, argv)
-    int     argc;
-    char  **argv;
-{
+int main(int argc, char **argv)
+{	
     int     i;
     int     unit = 0;
     int     overrun, overruns=0;
-    int timeout;
+    int     timeout;
     int     timeouts, last_timeouts = 0;
     int     recovering_timeout = FALSE;
     char   *progname ;
     char   *cameratype;
-    char    bmpfname[128];
     int     numbufs = 4;
-    int     started;
     u_char *image_p;
     PdvDev *pdv_p;
     char    errstr[64];
@@ -63,16 +56,58 @@ main(argc, argv)
     int     width, height, depth;
     char    edt_devname[128];
     int     channel = 0;
+	char camname[200];
+	
 	
 	unsigned short int *imageushort;
-	double value_ave;
-	int pix;
-	int exposure = 0.1; // exposure time [ms]
+	float exposure = 0.05; // exposure time [ms]
+
+	int xsize, ysize;
+	int kw;
+	
+	
+    uid_t ruid; // Real UID (= user launching process at startup)
+	uid_t euid; // Effective UID (= owner of executable at startup)
+	uid_t suid; // Saved UID (= owner of executable at startup)
+    
+    
+    int RT_priority = 70; //any number from 0-99
+    struct sched_param schedpar;
+	int ret;
+
+
+
+	getresuid(&ruid, &euid, &suid);
+    //This sets it to the privileges of the normal user
+    ret = seteuid(ruid);
+
+
+
+
+
+
+
+
+
+    schedpar.sched_priority = RT_priority;
+#ifndef __MACH__
+    ret = seteuid(euid); //This goes up to maximum privileges
+    sched_setscheduler(0, SCHED_FIFO, &schedpar); //other option is SCHED_RR, might be faster
+    ret = seteuid(ruid);//Go back to normal privileges
+#endif
+
+
+
+
+
+
+
+
+
 
     progname = argv[0];
 
     edt_devname[0] = '\0';
-    *bmpfname = '\0';
 
     /*
      * process command line arguments
@@ -100,10 +135,22 @@ main(argc, argv)
                 }
                 break;
 
-            case 'b':		/* bitmap save filename */
+
+            case 'u':
                 ++argv;
                 --argc;
-                strcpy(bmpfname, argv[0]);
+                if (argc < 1) 
+                {
+                    printf("Error: option 'u' requires a numeric argument (0 or 1)\n");
+                }
+                if ((argv[0][0] >= '0') && (argv[0][0] <= '1'))
+                {
+                    unit = atoi(argv[0]);
+                }
+                else 
+                {
+                    printf("Error: option 'u' requires a numeric argument (0 or 1)\n");
+                }
                 break;
 
 
@@ -147,6 +194,9 @@ main(argc, argv)
         argv++;
     }
 
+	initCRED2STRUCT();
+	printCRED2STRUCT(unit);
+
     /*
      * open the interface
      * 
@@ -157,6 +207,8 @@ main(argc, argv)
      * would normally be 0 unless there's another camera (or simulator)
      * on the second channel (camera link) or daisy-chained RCI (PCI FOI)
      */
+
+
     if (edt_devname[0])
     {
         unit = edt_parse_unit_channel(edt_devname, edt_devname, EDT_INTERFACE, &channel);
@@ -165,7 +217,10 @@ main(argc, argv)
     {
         strcpy(edt_devname, EDT_INTERFACE);
     }
-
+	
+	printf("edt_devname = %s   unit = %d\n", edt_devname, unit);
+	int cam = unit;
+	
     if ((pdv_p = pdv_open_channel(edt_devname, unit, channel)) == NULL)
     {
         sprintf(errstr, "pdv_open_channel(%s%d_%d)", edt_devname, unit, channel);
@@ -174,19 +229,160 @@ main(argc, argv)
     }
 
     pdv_flush_fifo(pdv_p);
+    
+    
 
-    /*
-     * get image size and name for display, save, printfs, etc.
-     */
+	IMAGE *imarray;    // pointer to array of images
+	int NBIMAGES = 3;  // can hold 1 image
+	long naxis;        // number of axis
+	uint8_t atype;     // data type
+	uint32_t *imsize;  // image size 
+	int shared;        // 1 if image in shared memory
+	int NBkw;          // number of keywords supported
+
+
+
+
+	if(ircamconf[cam].cropmode == 1)
+	{
+		printf("CROP mode ON\n");
+		xsize = ( ircamconf[cam].x1 - ircamconf[cam].x0 + 1);
+		ysize = ( ircamconf[cam].y1 - ircamconf[cam].y0 + 1);
+		printf("x0 & x1  : %d & %d\n",ircamconf[cam].x0 , ircamconf[cam].x1);
+		printf("y0 & y1  : %d & %d\n",ircamconf[cam].y0 , ircamconf[cam].y1);
+	
+    
+		pdv_set_width(pdv_p, xsize);
+		pdv_set_height(pdv_p, ysize);
+	}
+	else
+	{
+		printf("CROP mode OFF\n");
+		xsize = ( ircamconf[cam].x1 - ircamconf[cam].x0 + 1);
+		ysize = ( ircamconf[cam].y1 - ircamconf[cam].y0 + 1);
+		
+		pdv_set_width(pdv_p, xsize);
+		pdv_set_height(pdv_p, ysize);
+	}
+
+
     width = pdv_get_width(pdv_p);
     height = pdv_get_height(pdv_p);
     depth = pdv_get_depth(pdv_p);
     timeout = pdv_get_timeout(pdv_p);
     cameratype = pdv_get_cameratype(pdv_p);
-	
-	printf("Timeout    : %d\n", timeout);
-	printf("Camera type: %s\n", cameratype);
 
+	printf("image size  : %d x %d\n", width, height);
+	printf("Timeout     : %d\n", timeout);
+	printf("Camera type : %s\n", cameratype);
+    
+    
+    
+    
+	// allocate memory for array of images
+	imarray = (IMAGE*) malloc(sizeof(IMAGE)*NBIMAGES);
+	naxis = 2;
+	imsize = (uint32_t *) malloc(sizeof(uint32_t)*naxis);
+	imsize[0] = width;
+	imsize[1] = height;	
+	atype = _DATATYPE_INT16;
+	// image will be in shared memory
+	shared = 1;
+	// allocate space for 10 keywords
+	NBkw = 10;
+	sprintf(camname, "ircam%d", cam);
+	ImageStreamIO_createIm(&imarray[0], camname, naxis, imsize, atype, shared, NBkw);
+	free(imsize);
+
+
+	
+	// SAVING CUBES TO DISK 
+	// CHANGE NBIMAGES to 3
+	int SAVECUBE = 0; // change to 1 when saving -> move to shared mem for interactive control
+	int CUBEindex = 0; // 0 or 1
+	long frameindex = 0;
+	char imnamec0[200];
+	char imnamec1[200];
+	uint32_t CUBEsize = 1000;
+	naxis = 3;
+	imsize[0] = width;
+	imsize[1] = height;	
+	imsize[2] = CUBEsize;
+	atype = _DATATYPE_INT16;
+	imsize = (uint32_t *) malloc(sizeof(uint32_t)*naxis);	
+	sprintf(imnamec0, "%s_cube0", camname);
+	ImageStreamIO_createIm(&imarray[1], imnamec0, naxis, imsize, atype, shared, NBkw);
+	sprintf(imnamec1, "%s_cube1", camname);
+	ImageStreamIO_createIm(&imarray[2], imnamec1, naxis, imsize, atype, shared, NBkw);	
+	free(imsize);
+    
+ 
+    
+    
+	// Add keywords
+	kw = 0;
+	strcpy(imarray[0].kw[kw].name, "tint");
+    imarray[0].kw[kw].type = 'D';
+	imarray[0].kw[kw].value.numf = ircamconf[cam].tint;
+    strcpy(imarray[0].kw[kw].comment, "exposure time");
+
+	kw = 1;
+	strcpy(imarray[0].kw[kw].name, "fps");
+    imarray[0].kw[kw].type = 'D';
+	imarray[0].kw[kw].value.numf = ircamconf[cam].fps;
+    strcpy(imarray[0].kw[kw].comment, "frame rate");
+
+	kw = 2;
+	strcpy(imarray[0].kw[kw].name, "NDR");
+    imarray[0].kw[kw].type = 'L';
+	imarray[0].kw[kw].value.numl = ircamconf[cam].NDR;
+    strcpy(imarray[0].kw[kw].comment, "NDR");
+
+	kw = 3;
+	strcpy(imarray[0].kw[kw].name, "x0");
+    imarray[0].kw[kw].type = 'L';
+	imarray[0].kw[kw].value.numl = ircamconf[cam].x0;
+    strcpy(imarray[0].kw[kw].comment, "x0");
+
+	kw = 4;
+	strcpy(imarray[0].kw[kw].name, "x1");
+    imarray[0].kw[kw].type = 'L';
+	imarray[0].kw[kw].value.numl = ircamconf[cam].x1;
+    strcpy(imarray[0].kw[kw].comment, "x1");
+    
+   	kw = 5;
+	strcpy(imarray[0].kw[kw].name, "y0");
+    imarray[0].kw[kw].type = 'L';
+	imarray[0].kw[kw].value.numl = ircamconf[cam].y0;
+    strcpy(imarray[0].kw[kw].comment, "y0");
+    
+  	kw = 6;
+	strcpy(imarray[0].kw[kw].name, "y1");
+    imarray[0].kw[kw].type = 'L';
+	imarray[0].kw[kw].value.numl = ircamconf[cam].y1;
+    strcpy(imarray[0].kw[kw].comment, "y1");
+
+	kw = 7;
+	strcpy(imarray[0].kw[kw].name, "temp");
+    imarray[0].kw[kw].type = 'D';
+	imarray[0].kw[kw].value.numf = ircamconf[cam].temperature;
+    strcpy(imarray[0].kw[kw].comment, "detector temperature");
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+	fflush(stdout);
 
 	pdv_set_exposure(pdv_p, exposure);
 
@@ -200,9 +396,9 @@ main(argc, argv)
 
     printf("reading %d image%s from '%s'\nwidth %d height %d depth %d\n",
             loops, loops == 1 ? "" : "s", cameratype, width, height, depth);
-    printf("exposure = %d\n", exposure);
+    printf("exposure = %f\n", exposure);
 
-	imageushort = (unsigned short *) malloc(sizeof(unsigned short)*width*height);
+	// imageushort = (unsigned short *) malloc(sizeof(unsigned short)*width*height);
 
     /*
      * prestart the first image or images outside the loop to get the
@@ -214,32 +410,32 @@ main(argc, argv)
     if (pdv_p->dd_p->force_single)
     {
         pdv_start_image(pdv_p);
-        started = 1;
     }
     else
     {
         pdv_start_images(pdv_p, numbufs);
-        started = numbufs;
     }
-
-    for (i = 0; i < loops; i++)
+	printf("\n");
+	i = 0;
+	int loopOK = 1;
+    while(loopOK == 1)
     {
+		imarray[0].kw[0].value.numf = ircamconf[cam].tint;
+		imarray[0].kw[1].value.numf = ircamconf[cam].fps;
+		imarray[0].kw[2].value.numl = ircamconf[cam].NDR;
+		imarray[0].kw[7].value.numf = ircamconf[cam].temperature;
         /*
          * get the image and immediately start the next one (if not the last
          * time through the loop). Processing (saving to a file in this case)
          * can then occur in parallel with the next acquisition
          */
-        printf("image %d\r", i + 1);
-        fflush(stdout);
+
         image_p = pdv_wait_image(pdv_p);
 
         if ((overrun = (edt_reg_read(pdv_p, PDV_STAT) & PDV_OVERRUN)))
             ++overruns;
 
-        if (i < loops - started)
-        {
-            pdv_start_image(pdv_p);
-        }
+        pdv_start_image(pdv_p);
         timeouts = pdv_timeouts(pdv_p);
 
         /*
@@ -265,17 +461,62 @@ main(argc, argv)
             recovering_timeout = FALSE;
             printf("\nrestarted....\n");
         }
-        if (*bmpfname)
-            save_image(image_p, width, height, depth, bmpfname, (loops > 1?i:-1));
+        
+       // printf("line = %d\n", __LINE__);
+        fflush(stdout);
+        
             
         imageushort = (unsigned short *) image_p;
         
-        value_ave = 0.0;
-        for(pix=0; pix < width*height; pix++)
-			value_ave += imageushort[pix];
-        value_ave /= width*height;
-        printf("Average value = %lf\n", value_ave);
+        
+        fflush(stdout);
+        
+        imarray[0].md[0].write = 1; // set this flag to 1 when writing data
+        
+		memcpy(imarray[0].array.UI16, imageushort, sizeof(unsigned short)*width*height);
 
+
+		// SAVING CUBES TO DISK 
+		if(SAVECUBE==1)
+		{
+			char *destptr;
+			destptr = (char*) imarray[CUBEindex+1].array.UI16 + sizeof(unsigned short)*width*height * frameindex;
+
+			memcpy((void*) destptr, imageushort, sizeof(unsigned short)*width*height);
+			frameindex++;
+			
+			if(frameindex==CUBEsize)
+			{
+				imarray[CUBEindex+1].md[0].cnt0 ++;
+				imarray[CUBEindex+1].md[0].cnt1 ++;
+				imarray[CUBEindex+1].md[0].write = 0;
+				frameindex = 0;
+				CUBEindex++;
+				if(CUBEindex==2)
+					CUBEindex = 0;
+			
+				imarray[CUBEindex+1].md[0].write = 1;				
+			}
+			
+		}
+        
+        fflush(stdout);
+        
+        imarray[0].md[0].write = 0;
+        // POST ALL SEMAPHORES
+		ImageStreamIO_sempost(&imarray[0], -1);
+
+		imarray[0].md[0].write = 0; // Done writing data
+		imarray[0].md[0].cnt0++;
+		imarray[0].md[0].cnt1++;
+ 
+        ircamconf[cam].frameindex = i;
+
+
+		i++;
+		if(i==loops)
+			loopOK = 0;
+ 
     }
     puts("");
 
@@ -289,68 +530,17 @@ main(argc, argv)
     pdv_close(pdv_p);
 
     if (overruns || timeouts)
+    {
         exit(2);
+	}
 
-	free(imageushort);
 
+	free(imarray);
+    
     exit(0);
 }
 
 
-
-
-    static void
-save_image(u_char * image_p, int s_width, int s_height, int s_depth, char *tmpname, int count)
-{
-    int     s_db = bits2bytes(s_depth);
-    char    fname[256];
-
-    u_char *bbuf = NULL;
-    if ((strcmp(&tmpname[strlen(tmpname) - 4], ".bmp") == 0)
-            || (strcmp(&tmpname[strlen(tmpname) - 4], ".BMP") == 0))
-        tmpname[strlen(tmpname) - 4] = '\0';
-
-    if (count >= 0)
-        sprintf(fname, "%s_%03d.bmp", tmpname, count);
-    else sprintf(fname, "%s.bmp", tmpname);
-
-    switch (s_db)
-    {
-        case 1:
-            dvu_write_bmp(fname, image_p, s_width, s_height);
-            printf("writing %dx%dx%d bitmap file to %s\n",
-                    s_width, s_height, s_depth, fname);
-            break;
-
-        case 2:
-            printf("converting %dx%dx%d image to 8 bits, writing to %s\n",
-                    s_width, s_height, s_depth, fname);
-
-            if (!bbuf)
-                bbuf = (u_char *) pdv_alloc(s_width * s_height);
-
-            if (bbuf == NULL)
-            {
-                pdv_perror("data buf malloc");
-                exit(1);
-            }
-            dvu_word2byte((u_short *) image_p, (u_char *) bbuf,
-                    s_width * s_height, s_depth);
-            dvu_write_bmp(fname, bbuf, s_width, s_height);
-            break;
-
-        case 3:
-            printf("writing %dx%dx%d bmp file to %s\n",
-                    s_width, s_height, s_depth, fname);
-
-            dvu_write_bmp_24(fname, (u_char *) image_p, s_width, s_height);
-            break;
-
-        default:
-            printf("invalid image depth for file write...!\n");
-            break;
-    }
-}
 
 
 
@@ -364,6 +554,7 @@ usage(char *progname, char *errmsg)
     puts("");
     printf("usage: %s [-b fname] [-l loops] [-N numbufs] [-u unit] [-c channel]\n", progname);
     printf("  -b fname        output to MS bitmap file\n");
+    printf("  -u unit         set unit\n");
     printf("  -l loops        number of loops (images to take)\n");
     printf("  -N numbufs      number of ring buffers (see users guide) (default 4)\n");
     printf("  -h              this help message\n");
