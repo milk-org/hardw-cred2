@@ -1,0 +1,25 @@
+#!/bin/bash
+
+/opt/EDTpdv/initcam -c 0 -f /home/scexao/src/hardw-cred2/config/cred2_FGSetup_14bit.cfg 
+
+tmux new-session -d -s ircam0ctrl
+tmux new-session -d -s ircam0run
+
+tmux send-keys -t ircam0ctrl "" C-c
+tmux send-keys -t ircam0ctrl "" C-c
+tmux send-keys -t ircam0run "" C-c
+tmux send-keys -t ircam0run "" C-c
+
+
+tmux send-keys -t ircam0ctrl "cd /home/scexao/src/hardw-cred2/src" C-m
+tmux send-keys -t ircam0run "cd /home/scexao/src/hardw-cred2/src" C-m
+sleep 0.5
+
+tmux send-keys -t ircam0ctrl "./ircam0server" C-m
+
+
+tmux send-keys -t ircam0ctrl "setcrop 0" C-m
+#tmux send-keys -t ircam0ctrl "start" C-m
+
+
+
