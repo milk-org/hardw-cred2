@@ -1,6 +1,6 @@
 #ifndef _CRED2STRUCT_H
 #define _CRED2STRUCT_H
-#define ircamconf_name "/tmp/ircamconf.shm"
+//#define ircamconf_name "/tmp/ircamconf.shm"
 
 #define NBconf  2
 
@@ -36,7 +36,8 @@ typedef struct
 
 
 int printCRED2STRUCT(int cam);
-int initCRED2STRUCT();
+
+int initCRED2STRUCT(int unit);
 
 
 #endif

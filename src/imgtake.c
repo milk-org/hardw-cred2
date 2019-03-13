@@ -12,6 +12,7 @@
  * 
  */
  
+ 
 #define _GNU_SOURCE
  
  
@@ -55,9 +56,9 @@ int main(int argc, char **argv)
     int     loops = 1;
     int     width, height, depth;
     char    edt_devname[128];
-    int     channel = 0;
-	char camname[200];
-	
+    int     channel = 0; // same as cam
+	char    camname[200];
+
 	
 	unsigned short int *imageushort;
 	float exposure = 0.05; // exposure time [ms]
@@ -80,20 +81,21 @@ int main(int argc, char **argv)
 	getresuid(&ruid, &euid, &suid);
     //This sets it to the privileges of the normal user
     ret = seteuid(ruid);
-
-
-
-
-
+    if(ret!=0)
+		printf("setuid error\n");
 
 
 
 
     schedpar.sched_priority = RT_priority;
 #ifndef __MACH__
+    if(ret!=0)
+		printf("setuid error\n");
     ret = seteuid(euid); //This goes up to maximum privileges
     sched_setscheduler(0, SCHED_FIFO, &schedpar); //other option is SCHED_RR, might be faster
     ret = seteuid(ruid);//Go back to normal privileges
+    if(ret!=0)
+		printf("setuid error\n");
 #endif
 
 
@@ -141,15 +143,15 @@ int main(int argc, char **argv)
                 --argc;
                 if (argc < 1) 
                 {
-                    printf("Error: option 'u' requires a numeric argument (0 or 1)\n");
+                    printf("Error: option 'u' requires a numeric argument (0, 1 or 2)\n");
                 }
-                if ((argv[0][0] >= '0') && (argv[0][0] <= '1'))
+                if ((argv[0][0] >= '0') && (argv[0][0] <= '2'))
                 {
                     unit = atoi(argv[0]);
                 }
                 else 
                 {
-                    printf("Error: option 'u' requires a numeric argument (0 or 1)\n");
+                    printf("Error: option 'u' requires a numeric argument (0, 1 or 2)\n");
                 }
                 break;
 
@@ -194,7 +196,7 @@ int main(int argc, char **argv)
         argv++;
     }
 
-	initCRED2STRUCT();
+	initCRED2STRUCT(unit);
 	printCRED2STRUCT(unit);
 
     /*
@@ -219,7 +221,7 @@ int main(int argc, char **argv)
     }
 	
 	printf("edt_devname = %s   unit = %d\n", edt_devname, unit);
-	int cam = unit;
+	int cam = 0;
 	
     if ((pdv_p = pdv_open_channel(edt_devname, unit, channel)) == NULL)
     {
@@ -290,7 +292,7 @@ int main(int argc, char **argv)
 	shared = 1;
 	// allocate space for 10 keywords
 	NBkw = 10;
-	sprintf(camname, "ircam%d", cam);
+	sprintf(camname, "ircam%d", unit);
 	ImageStreamIO_createIm(&imarray[0], camname, naxis, imsize, atype, shared, NBkw);
 	free(imsize);
 

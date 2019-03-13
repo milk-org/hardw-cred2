@@ -1,24 +1,30 @@
 #!/bin/bash
 
-/opt/EDTpdv/initcam -c 0 -f /home/scexao/src/hardw-cred2/config/cred2_FGSetup_14bit.cfg 
+unit="0"
 
-tmux new-session -d -s ircam0ctrl
-tmux new-session -d -s ircam0run
+echo "STARTING CRED2 CAMERA UNIT $unit"
 
-tmux send-keys -t ircam0ctrl "" C-c
-tmux send-keys -t ircam0ctrl "" C-c
-tmux send-keys -t ircam0run "" C-c
-tmux send-keys -t ircam0run "" C-c
+/opt/EDTpdv/initcam -c 0 -u $unit -f /home/scexao/src/hardw-cred2/config/cred2_FGSetup_14bit.cfg 
+
+tmux new-session -d -s ircam${unit}ctrl
+tmux new-session -d -s ircam${unit}run
 
 
-tmux send-keys -t ircam0ctrl "cd /home/scexao/src/hardw-cred2/src" C-m
-tmux send-keys -t ircam0run "cd /home/scexao/src/hardw-cred2/src" C-m
+tmux send-keys -t ircam${unit}ctrl "" C-c
+tmux send-keys -t ircam${unit}ctrl "" C-c
+tmux send-keys -t ircam${unit}run "" C-c
+tmux send-keys -t ircam${unit}run "" C-c
+
+
+tmux send-keys -t ircam${unit}ctrl "cd /home/scexao/src/hardw-cred2/src" C-m
+tmux send-keys -t ircam${unit}run "cd /home/scexao/src/hardw-cred2/src" C-m
 sleep 0.5
 
-tmux send-keys -t ircam0ctrl "./ircam0server" C-m
+tmux send-keys -t ircam${unit}ctrl "./ircamserver -u ${unit}" C-m
 
 
-tmux send-keys -t ircam0ctrl "setcrop 0" C-m
+tmux send-keys -t ircam${unit}ctrl "setcrop 0" C-m
+
 #tmux send-keys -t ircam0ctrl "start" C-m
 
 

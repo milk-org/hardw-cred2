@@ -1,5 +1,5 @@
 // COMPILE:
-// gcc ircam0server.c cred2struct.c -o ircam0server -I/opt/EDTpdv /opt/EDTpdv/libpdv.a -lm -lpthread -ldl
+// gcc ircamserver.c cred2struct.c -o ircamserver -I/opt/EDTpdv /opt/EDTpdv/libpdv.a -lm -lpthread -ldl
 
 
 #include <stdio.h>
@@ -18,7 +18,15 @@
 static char buf[SERBUFSIZE+1];
 
 
-#define ircamconf_name "/tmp/ircamconf.shm"
+//#define ircamconf_name "/tmp/ircamconf.shm"
+
+
+
+// frame grabber index
+int unit = 0;
+
+// camera index within frame grabber
+int cam = 0;
 
 
 
@@ -410,15 +418,15 @@ int main(int     argc,    char  **argv)
                 --argc;
                 if (argc < 1) 
                 {
-                    printf("Error: option 'u' requires a numeric argument (0 or 1)\n");
+                    printf("Error: option 'u' requires a numeric argument (0 , 1, or 2)\n");
                 }
-                if ((argv[0][0] >= '0') && (argv[0][0] <= '1'))
+                if ((argv[0][0] >= '0') && (argv[0][0] <= '2'))
                 {
                     unit = atoi(argv[0]);
                 }
                 else 
                 {
-                    printf("Error: option 'u' requires a numeric argument (0 or 1)\n");
+                    printf("Error: option 'u' requires a numeric argument (0, 1 or 2)\n");
                 }
                 break;
 
@@ -461,11 +469,11 @@ int main(int     argc,    char  **argv)
 	
 	 
 	printf("Reading / creating shared memory structure\n");
-	initCRED2STRUCT();
+	initCRED2STRUCT(unit);
 
 	printCRED2STRUCT(cam);
 	
-	cam = unit;
+	cam = 0;
 	sprintf(promptstring, "cam%d", cam);
 	sprintf(prompt,"%c[%d;%dm%s >%c[%dm ",0x1B, 1, 36, promptstring, 0x1B, 0);
 	
@@ -726,7 +734,8 @@ int main(int     argc,    char  **argv)
 		  if(cmdOK==0)
           if(strncmp(cmdstring, "stop", strlen("stop")) == 0)
         {
-			system("tmux send-keys -t ircam0run C-c");
+			sprintf(command, "tmux send-keys -t ircam%drun C-c", unit);
+			system(command);
           cmdOK = 1;
         } 
 
@@ -734,7 +743,7 @@ int main(int     argc,    char  **argv)
           if(strncmp(cmdstring, "take", strlen("take")) == 0)
         {
 			sscanf(cmdstring, "%s %d", str0, &d0);
-			sprintf(command, "tmux send-keys -t ircam0run \"./imgtake -u 0 -l %d\" C-m", d0);
+			sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l %d\" C-m", unit, unit, d0);
 			system(command);
           cmdOK = 1;
         } 
@@ -742,7 +751,8 @@ int main(int     argc,    char  **argv)
 		  if(cmdOK==0)
           if(strncmp(cmdstring, "start", strlen("start")) == 0)
         {
-			system("tmux send-keys -t ircam0run \"./imgtake -u 0 -l 0\" C-m");
+			sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0\" C-m", unit, unit);
+			system(command);
 			sleep(1.0);
 			system("./imgtakeCPUconf");
           cmdOK = 1;
@@ -764,7 +774,8 @@ int main(int     argc,    char  **argv)
 
 			
 			printf("--------------------------------------------\n");
-			system("tmux send-keys -t ircam0run C-c");
+			sprintf(command, "tmux send-keys -t ircam%drun C-c", unit);
+			system(command);
 
 			sprintf(serialcmd, "set cropping on");
 			ircamconf[cam].cropmode = 1;
@@ -828,8 +839,8 @@ int main(int     argc,    char  **argv)
 			printf("outbuf: \n%s\n", outbuf);
 			sleep(1);
 			
-						
-			system("tmux send-keys -t ircam0run \"./imgtake -u 0 -l 0\" C-m");
+			sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0\" C-m", unit, unit);
+			system(command);
 			}
           cmdOK = 1;
         } 

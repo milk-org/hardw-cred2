@@ -39,25 +39,28 @@ int printCRED2STRUCT(int cam)
 
 
 
-int initCRED2STRUCT()
+int initCRED2STRUCT(int unit)
 {
 	int SM_fd;        // shared memory file descriptor
 	int create = 0;   // 1 if we need to re-create shared memory
 	struct stat file_stat;
+	char confname[100];
 	
-	SM_fd = open(ircamconf_name, O_RDWR);
+	sprintf(confname, "/tmp/ircamconf%d.shm", unit);
+	
+	SM_fd = open(confname, O_RDWR);
     if(SM_fd==-1)
     {
-        printf("Cannot import file \"%s\" -> creating file\n", ircamconf_name);
+        printf("Cannot import file \"%s\" -> creating file\n", confname);
         create = 1;
     }
     else
     {
         fstat(SM_fd, &file_stat);  // read file stats
-        printf("File %s size: %zd\n", ircamconf_name, file_stat.st_size);
+        printf("File %s size: %zd\n", confname, file_stat.st_size);
         if(file_stat.st_size!=sizeof(CRED2STRUCT)*NBconf)
         {
-            printf("File \"%s\" size is wrong -> recreating file\n", ircamconf_name);
+            printf("File \"%s\" size is wrong -> recreating file\n", confname);
             create = 1;
             close(SM_fd);
         }
@@ -68,7 +71,7 @@ int initCRED2STRUCT()
 		printf("======== CREATING SHARED MEMORY FILE =======\n");
         int result;
 
-        SM_fd = open(ircamconf_name, O_RDWR | O_CREAT | O_TRUNC, (mode_t)0600);
+        SM_fd = open(confname, O_RDWR | O_CREAT | O_TRUNC, (mode_t)0600);
 
         if (SM_fd == -1) {
             perror("Error opening file for writing");
