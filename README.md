@@ -80,15 +80,9 @@ Alternatively:
 
 	/opt/EDTpdv/initcam -c 0 -f config/cred2_FGSetup_14bit.cfg 
 
-## Compilation
-
-Source code is in ./src/directory.
-To compile:
-
-	gcc -I/opt/EDTpdv imgtake.c /opt/EDTpdv/libpdv.a -lm -lpthread -ldl -o imgtake
 
 
-# Application
+# Compile Application
 
 Application programs are ircamserver and imgtake. To compile:
 

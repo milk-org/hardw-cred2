@@ -1,0 +1,4 @@
+#!/bin/bash
+
+pidlist=$( pgrep imgtake|xargs echo | sed 's/ /,/g' )
+sudo cset proc -m -p $pidlist -t ircam0read
