@@ -245,13 +245,13 @@ int main(int argc, char **argv)
 
 
 
-	if(ircamconf[cam].cropmode == 1)
+	if(ircamconf[unit].cropmode == 1)
 	{
 		printf("CROP mode ON\n");
-		xsize = ( ircamconf[cam].x1 - ircamconf[cam].x0 + 1);
-		ysize = ( ircamconf[cam].y1 - ircamconf[cam].y0 + 1);
-		printf("x0 & x1  : %d & %d\n",ircamconf[cam].x0 , ircamconf[cam].x1);
-		printf("y0 & y1  : %d & %d\n",ircamconf[cam].y0 , ircamconf[cam].y1);
+		xsize = ( ircamconf[unit].x1 - ircamconf[unit].x0 + 1);
+		ysize = ( ircamconf[unit].y1 - ircamconf[unit].y0 + 1);
+		printf("x0 & x1  : %d & %d\n",ircamconf[unit].x0 , ircamconf[unit].x1);
+		printf("y0 & y1  : %d & %d\n",ircamconf[unit].y0 , ircamconf[unit].y1);
 	
     
 		pdv_set_width(pdv_p, xsize);
@@ -260,8 +260,8 @@ int main(int argc, char **argv)
 	else
 	{
 		printf("CROP mode OFF\n");
-		xsize = ( ircamconf[cam].x1 - ircamconf[cam].x0 + 1);
-		ysize = ( ircamconf[cam].y1 - ircamconf[cam].y0 + 1);
+		xsize = ( ircamconf[unit].x1 - ircamconf[unit].x0 + 1);
+		ysize = ( ircamconf[unit].y1 - ircamconf[unit].y0 + 1);
 		
 		pdv_set_width(pdv_p, xsize);
 		pdv_set_height(pdv_p, ysize);
@@ -325,49 +325,49 @@ int main(int argc, char **argv)
 	kw = 0;
 	strcpy(imarray[0].kw[kw].name, "tint");
     imarray[0].kw[kw].type = 'D';
-	imarray[0].kw[kw].value.numf = ircamconf[cam].tint;
+	imarray[0].kw[kw].value.numf = ircamconf[unit].tint;
     strcpy(imarray[0].kw[kw].comment, "exposure time");
 
 	kw = 1;
 	strcpy(imarray[0].kw[kw].name, "fps");
     imarray[0].kw[kw].type = 'D';
-	imarray[0].kw[kw].value.numf = ircamconf[cam].fps;
+	imarray[0].kw[kw].value.numf = ircamconf[unit].fps;
     strcpy(imarray[0].kw[kw].comment, "frame rate");
 
 	kw = 2;
 	strcpy(imarray[0].kw[kw].name, "NDR");
     imarray[0].kw[kw].type = 'L';
-	imarray[0].kw[kw].value.numl = ircamconf[cam].NDR;
+	imarray[0].kw[kw].value.numl = ircamconf[unit].NDR;
     strcpy(imarray[0].kw[kw].comment, "NDR");
 
 	kw = 3;
 	strcpy(imarray[0].kw[kw].name, "x0");
     imarray[0].kw[kw].type = 'L';
-	imarray[0].kw[kw].value.numl = ircamconf[cam].x0;
+	imarray[0].kw[kw].value.numl = ircamconf[unit].x0;
     strcpy(imarray[0].kw[kw].comment, "x0");
 
 	kw = 4;
 	strcpy(imarray[0].kw[kw].name, "x1");
     imarray[0].kw[kw].type = 'L';
-	imarray[0].kw[kw].value.numl = ircamconf[cam].x1;
+	imarray[0].kw[kw].value.numl = ircamconf[unit].x1;
     strcpy(imarray[0].kw[kw].comment, "x1");
     
    	kw = 5;
 	strcpy(imarray[0].kw[kw].name, "y0");
     imarray[0].kw[kw].type = 'L';
-	imarray[0].kw[kw].value.numl = ircamconf[cam].y0;
+	imarray[0].kw[kw].value.numl = ircamconf[unit].y0;
     strcpy(imarray[0].kw[kw].comment, "y0");
     
   	kw = 6;
 	strcpy(imarray[0].kw[kw].name, "y1");
     imarray[0].kw[kw].type = 'L';
-	imarray[0].kw[kw].value.numl = ircamconf[cam].y1;
+	imarray[0].kw[kw].value.numl = ircamconf[unit].y1;
     strcpy(imarray[0].kw[kw].comment, "y1");
 
 	kw = 7;
 	strcpy(imarray[0].kw[kw].name, "temp");
     imarray[0].kw[kw].type = 'D';
-	imarray[0].kw[kw].value.numf = ircamconf[cam].temperature;
+	imarray[0].kw[kw].value.numf = ircamconf[unit].temperature;
     strcpy(imarray[0].kw[kw].comment, "detector temperature");
     
     
@@ -422,10 +422,10 @@ int main(int argc, char **argv)
 	int loopOK = 1;
     while(loopOK == 1)
     {
-		imarray[0].kw[0].value.numf = ircamconf[cam].tint;
-		imarray[0].kw[1].value.numf = ircamconf[cam].fps;
-		imarray[0].kw[2].value.numl = ircamconf[cam].NDR;
-		imarray[0].kw[7].value.numf = ircamconf[cam].temperature;
+		imarray[0].kw[0].value.numf = ircamconf[unit].tint;
+		imarray[0].kw[1].value.numf = ircamconf[unit].fps;
+		imarray[0].kw[2].value.numl = ircamconf[unit].NDR;
+		imarray[0].kw[7].value.numf = ircamconf[unit].temperature;
         /*
          * get the image and immediately start the next one (if not the last
          * time through the loop). Processing (saving to a file in this case)
@@ -512,7 +512,7 @@ int main(int argc, char **argv)
 		imarray[0].md[0].cnt0++;
 		imarray[0].md[0].cnt1++;
  
-        ircamconf[cam].frameindex = i;
+        ircamconf[unit].frameindex = i;
 
 
 		i++;

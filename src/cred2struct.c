@@ -11,26 +11,26 @@
 
 extern CRED2STRUCT *ircamconf;
 
-int printCRED2STRUCT(int cam)
+int printCRED2STRUCT(int unit)
 {
-	printf("cam = %d\n", cam);
+	printf("unit = %d\n", unit);
 	printf("======================================================================\n");
-	printf("FGchannel    %d\n", ircamconf[cam].FGchannel);
-	printf("tint         %f\n", ircamconf[cam].tint);
-	printf("NDR val      %d\n", ircamconf[cam].NDR);
+	printf("FGchannel    %d\n", ircamconf[unit].FGchannel);
+	printf("tint         %f\n", ircamconf[unit].tint);
+	printf("NDR val      %d\n", ircamconf[unit].NDR);
 
 
-	printf("Frame rate             %12f Hz\n", ircamconf[cam].fps);	
+	printf("Frame rate             %12f Hz\n", ircamconf[unit].fps);	
 	
 	printf("Detector temperature   %12f  (setpt = %12f)\n", 
-	ircamconf[cam].temperature,
-	ircamconf[cam].temperature_setpoint);
+	ircamconf[unit].temperature,
+	ircamconf[unit].temperature_setpoint);
 
-	printf("cropping   ON=%d   window:\n",ircamconf[cam].cropmode);
-	printf("    x / cols   :  %3d-%3d   size = %3d\n", ircamconf[cam].x0, ircamconf[cam].x1, (ircamconf[cam].x1-ircamconf[cam].x0)+1);
-	printf("    y / rows   :  %3d-%3d   size = %3d\n", ircamconf[cam].y0, ircamconf[cam].y1, (ircamconf[cam].y1-ircamconf[cam].y0)+1);
+	printf("cropping   ON=%d   window:\n",ircamconf[unit].cropmode);
+	printf("    x / cols   :  %3d-%3d   size = %3d\n", ircamconf[unit].x0, ircamconf[unit].x1, (ircamconf[unit].x1-ircamconf[unit].x0)+1);
+	printf("    y / rows   :  %3d-%3d   size = %3d\n", ircamconf[unit].y0, ircamconf[unit].y1, (ircamconf[unit].y1-ircamconf[unit].y0)+1);
 		
-	printf("Current frame = %ld\n", ircamconf[cam].frameindex);
+	printf("Current frame = %ld\n", ircamconf[unit].frameindex);
 	printf("======================================================================\n");
 
 	return (0);

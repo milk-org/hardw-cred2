@@ -471,10 +471,10 @@ int main(int     argc,    char  **argv)
 	printf("Reading / creating shared memory structure\n");
 	initCRED2STRUCT(unit);
 
-	printCRED2STRUCT(cam);
+	printCRED2STRUCT(unit);
 	
 	cam = 0;
-	sprintf(promptstring, "cam%d", cam);
+	sprintf(promptstring, "u%dcam%d", unit, cam);
 	sprintf(prompt,"%c[%d;%dm%s >%c[%dm ",0x1B, 1, 36, promptstring, 0x1B, 0);
 	
 	
@@ -511,8 +511,8 @@ int main(int     argc,    char  **argv)
 		if(cmdOK==0)
 		if(strncmp(cmdstring, "readconf", strlen("readconf"))==0)
 		{
-			printf(" ---- cam = %d ---\n", cam);
-			printCRED2STRUCT(cam);
+			printf(" ---- unit = %d ---\n", unit);
+			printCRED2STRUCT(unit);
 			cmdOK = 1;
 		}
 		
@@ -576,7 +576,7 @@ int main(int     argc,    char  **argv)
 		if(cmdOK==0)
 		if(strncmp(cmdstring, "gtint", strlen("gtint"))==0)
 		{	
-			ircamconf[cam].tint = servercommand_gtint(ed);
+			ircamconf[unit].tint = servercommand_gtint(ed);
 			cmdOK = 1;
 		}
 
@@ -585,7 +585,7 @@ int main(int     argc,    char  **argv)
 		if(strncmp(cmdstring, "stint", strlen("stint"))==0)
 		{
 			sscanf(cmdstring, "%s %f", str0, &v0);
-			ircamconf[cam].tint = v0;
+			ircamconf[unit].tint = v0;
 			printf("Setting tint to %f\n", v0);
 			
 			
@@ -598,7 +598,7 @@ int main(int     argc,    char  **argv)
 			
 			tint_setpoint = v0;
             printf("outbuf:\n%s\n",outbuf);
-			ircamconf[cam].tint = servercommand_gtint(ed);
+			ircamconf[unit].tint = servercommand_gtint(ed);
 			cmdOK = 1;
 		}
 		
@@ -609,7 +609,7 @@ int main(int     argc,    char  **argv)
 		if(strncmp(cmdstring, "gtemp", strlen("gtemp"))==0)
 		{	
 			
-			ircamconf[cam].temperature = servercommand_gtemp(ed);
+			ircamconf[unit].temperature = servercommand_gtemp(ed);
 		   cmdOK = 1;
 		}
 		
@@ -625,9 +625,9 @@ int main(int     argc,    char  **argv)
 			readpdvcli(ed, outbuf);
 			
 
-			ircamconf[cam].temperature_setpoint = v0;
+			ircamconf[unit].temperature_setpoint = v0;
             printf("outbuf:\n%s\n",outbuf);
-            ircamconf[cam].temperature_setpoint = servercommand_gtemp(ed);
+            ircamconf[unit].temperature_setpoint = servercommand_gtemp(ed);
             cmdOK = 1;
 		}
 
@@ -639,7 +639,7 @@ int main(int     argc,    char  **argv)
 		if(strncmp(cmdstring, "gfps", strlen("gfps"))==0)
 		{	
 			
-			ircamconf[cam].fps = servercommand_gfps(ed);
+			ircamconf[unit].fps = servercommand_gfps(ed);
 		    cmdOK = 1;
 		}
 
@@ -647,7 +647,7 @@ int main(int     argc,    char  **argv)
 		if(strncmp(cmdstring, "sfps", strlen("sfps"))==0)
 		{
 			sscanf(cmdstring, "%s %f", str0, &v0);
-            ircamconf[cam].fps = v0;
+            ircamconf[unit].fps = v0;
             printf("Setting fps to %f\n", v0);
 			sprintf(serialcmd, "set fps %f", v0);
 			sprintf(tmpbuf, "%s\r", serialcmd);
@@ -658,7 +658,7 @@ int main(int     argc,    char  **argv)
 			
 			fps_setpoint = v0;
 			printf("outbuf:\n%s\n",outbuf);
-            ircamconf[cam].fps = servercommand_gfps(ed);
+            ircamconf[unit].fps = servercommand_gfps(ed);
 			cmdOK = 1;
 		}
 
@@ -668,7 +668,7 @@ int main(int     argc,    char  **argv)
         if(cmdOK==0)
 		if(strncmp(cmdstring, "gNDR", strlen("gNDR"))==0)
 		{	
-			ircamconf[cam].NDR = servercommand_gNDR(ed);
+			ircamconf[unit].NDR = servercommand_gNDR(ed);
 			cmdOK = 1;
 		}
 
@@ -681,7 +681,7 @@ int main(int     argc,    char  **argv)
             printf("Exceeding the maximum limit 255 \n");
 
             else{
-            ircamconf[cam].NDR = d0;
+            ircamconf[unit].NDR = d0;
             printf("Setting NDR to %d\n", d0);
             sprintf(tmpbuf, "%s\r", serialcmd);
             if (verbose)
@@ -691,7 +691,7 @@ int main(int     argc,    char  **argv)
 			
 			NDR_setpoint = d0;
 			printf("outbuf:\n%s\n",outbuf);
-            ircamconf[cam].NDR = servercommand_gNDR(ed);
+            ircamconf[unit].NDR = servercommand_gNDR(ed);
 			}
 			cmdOK = 1;
 		}
@@ -778,7 +778,7 @@ int main(int     argc,    char  **argv)
 			system(command);
 
 			sprintf(serialcmd, "set cropping on");
-			ircamconf[cam].cropmode = 1;
+			ircamconf[unit].cropmode = 1;
 			printf("Setting crop mode ON");
 			sprintf(tmpbuf, "%s\r", serialcmd);
 			if (verbose)
@@ -794,8 +794,8 @@ int main(int     argc,    char  **argv)
 			pdv_serial_command(ed, tmpbuf);
 			readpdvcli(ed, outbuf);
 			printf("outbuf: \n%s\n", outbuf);
-	        ircamconf[cam].x0 = CropMode_x0[d0];
-			ircamconf[cam].x1 = CropMode_x1[d0];
+	        ircamconf[unit].x0 = CropMode_x0[d0];
+			ircamconf[unit].x1 = CropMode_x1[d0];
 			sleep(2);
 			
 
@@ -807,8 +807,8 @@ int main(int     argc,    char  **argv)
 			pdv_serial_command(ed, tmpbuf);
 			readpdvcli(ed, outbuf);
 			printf("outbuf: \n%s\n", outbuf);
-	        ircamconf[cam].x0 = CropMode_x0[d0];
-			ircamconf[cam].x1 = CropMode_x1[d0];
+	        ircamconf[unit].x0 = CropMode_x0[d0];
+			ircamconf[unit].x1 = CropMode_x1[d0];
 			sleep(2);
 			
 			
@@ -818,8 +818,8 @@ int main(int     argc,    char  **argv)
 			pdv_serial_command(ed, tmpbuf);
 			readpdvcli(ed, outbuf);
 			printf("outbuf: \n%s\n", outbuf);
-	        ircamconf[cam].y0 = CropMode_y0[d0];
-			ircamconf[cam].y1 = CropMode_y1[d0];
+	        ircamconf[unit].y0 = CropMode_y0[d0];
+			ircamconf[unit].y1 = CropMode_y1[d0];
 			sleep(2);
         
         
@@ -851,7 +851,7 @@ int main(int     argc,    char  **argv)
         {
           sscanf(cmdstring, "%s", str0);
           sprintf(serialcmd, "set cropping on");
-          ircamconf[cam].cropmode = 1;
+          ircamconf[unit].cropmode = 1;
           printf("Setting crop mode ON");
           sprintf(tmpbuf, "%s\r", serialcmd);
           if (verbose)
@@ -870,7 +870,19 @@ int main(int     argc,    char  **argv)
         {
         sscanf(cmdstring, "%s", str0);
         sprintf(serialcmd, "set cropping off");
-        ircamconf[cam].cropmode = 0;
+        
+        ircamconf[unit].cropmode = 0;
+
+        ircamconf[unit].x0 = 0;
+        ircamconf[unit].x1 = 639;
+        
+        ircamconf[unit].y0 = 0;
+        ircamconf[unit].y1 = 511;
+        
+			printf("--------------------------------------------\n");
+			sprintf(command, "tmux send-keys -t ircam%drun C-c", unit);
+			system(command);        
+        
         printf("Setting crop mode OFF");
         sprintf(tmpbuf, "%s\r", serialcmd);
         if (verbose)
@@ -878,6 +890,11 @@ int main(int     argc,    char  **argv)
         pdv_serial_command(ed, tmpbuf);
         readpdvcli(ed, outbuf);
         printf("outbuf: \n%s\n", outbuf);               
+
+		sleep(2);
+
+			sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0\" C-m", unit, unit);
+			system(command);
 
         cmdOK = 1; 
         }
@@ -896,8 +913,8 @@ int main(int     argc,    char  **argv)
        	
 	   readpdvcli(ed, outbuf);
 	   sscanf(outbuf,"%s %d %d", str0, &d0, &d1);
-       ircamconf[cam].x0 = d0;
-       ircamconf[cam].x1 = -d1;
+       ircamconf[unit].x0 = d0;
+       ircamconf[unit].x1 = -d1;
 	   printf("outbuf:\n%s\n",outbuf);
 
        cmdOK = 1;
@@ -913,8 +930,8 @@ int main(int     argc,    char  **argv)
         if((d1-d0 +1)%32 == 0)
         {
         sprintf(serialcmd, "set cropping columns %d-%d", d0, d1);
-        ircamconf[cam].x0 = d0;
-        ircamconf[cam].x1 = d1;
+        ircamconf[unit].x0 = d0;
+        ircamconf[unit].x1 = d1;
         printf("cropping columns(granularity 32 \n)");
         sprintf(tmpbuf, "%s\r", serialcmd);
         if (verbose)
@@ -943,8 +960,8 @@ int main(int     argc,    char  **argv)
        	
 	   readpdvcli(ed, outbuf);
 	   sscanf(outbuf,"%s %d %d", str0, &d0, &d1);
-       ircamconf[cam].y0 = d0;
-       ircamconf[cam].y1 = -d1;
+       ircamconf[unit].y0 = d0;
+       ircamconf[unit].y1 = -d1;
 	   printf("outbuf:\n%s\n",outbuf);
 
        cmdOK = 1;
@@ -960,8 +977,8 @@ int main(int     argc,    char  **argv)
         if((d1-d0+1)%4 == 0)
         {
         sprintf(serialcmd, "set cropping rows %d-%d", d0, d1);
-        ircamconf[cam].y0 = d0;
-        ircamconf[cam].y1 = d1;
+        ircamconf[unit].y0 = d0;
+        ircamconf[unit].y1 = d1;
         printf("cropping columns (granularity 4 \n)");
         sprintf(tmpbuf, "%s\r", serialcmd);
         if (verbose)
