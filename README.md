@@ -82,10 +82,15 @@ Alternatively:
 
 
 
-# Compile Application
+# Application program
+
+Running the camera requires running two process: server (ircamserver) and image acquisition (imgtake).
+
+## Compile 
 
 Application programs are ircamserver and imgtake. To compile:
 
 	cd ./src
 	./compile
 
+## Running 
