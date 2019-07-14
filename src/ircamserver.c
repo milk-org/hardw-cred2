@@ -123,8 +123,8 @@ int init_CropModes()
     // rows
     CropMode_y0[5] = 220;
     CropMode_y1[5] = 291;
-    CropMode_fps[5] = 2000.0; //1949.824224992;
-    CropMode_tint[5] = 0.0001; //0.009995574;
+    CropMode_fps[5] = 8002.636203000; //1949.824224992;
+    CropMode_tint[5] = 0.000121555; //0.009995574;
 	
 
     // OFFSET -32 pix in X (Y band)
