@@ -61,35 +61,38 @@ int init_CropModes()
 {
     int i;
 
-    // half frame, centered
+    // 320x256 half frame, centered 
     // cols
     CropMode_x0[0] = 160;
     CropMode_x1[0] = 479;
     // rows
     CropMode_y0[0] = 128;
     CropMode_y1[0] = 383;
-    CropMode_fps[0] = 1192.300175884;
-    CropMode_tint[0] = 0.000828881;
+    CropMode_fps[0] = 1500.082358000; //1192.300175884;
+    CropMode_tint[0] = 0.000663336; //0.000828881;
 
-    // 1/8 frame, centered
+
+    // 224 x 156, centered 
     // cols
     CropMode_x0[1] = 192;
     CropMode_x1[1] = 415;
     // rows
     CropMode_y0[1] = 160;
     CropMode_y1[1] = 347;
-    CropMode_fps[1] = 1872.621240025;
-    CropMode_tint[1] = 0.000529585;
+    CropMode_fps[1] = 2050.202611000; //1872.621240025;
+    CropMode_tint[1] = 0.000483913; //0.000529585;
 
-    // 128 x 128, centered
+
+    // 128 x 128, centered 
     // cols
     CropMode_x0[2] = 256;
     CropMode_x1[2] = 383;
     // rows
     CropMode_y0[2] = 192;
     CropMode_y1[2] = 319;
-    CropMode_fps[2] = 3192.569335426;
-    CropMode_tint[2] = 0.000308720;
+    CropMode_fps[2] = 4500.617741000; //3192.569335426;
+    CropMode_tint[2] = 0.000218568; //0.000308720;
+
 
     // 64 x 64, centered
     // cols
@@ -98,8 +101,9 @@ int init_CropModes()
     // rows
     CropMode_y0[3] = 224;
     CropMode_y1[3] = 287;
-    CropMode_fps[3] = 6428.872497366;
-    CropMode_tint[3] = 0.000151041;
+    CropMode_fps[3] = 9203.638201000; //6428.872497366;
+    CropMode_tint[3] = 0.000105249; //0.000151041;
+
 
     // 192 x 192, centered
     // cols
@@ -108,21 +112,32 @@ int init_CropModes()
     // rows
     CropMode_y0[4] = 160;
     CropMode_y1[4] = 351;
-    CropMode_fps[4] = 1949.824224992;
-    CropMode_tint[4] = 0.009995574;
+    CropMode_fps[4] = 2200.024157000  ; //1949.824224992;
+    CropMode_tint[4] = 0.000449819; //0.009995574;
 
+
+	// 96 x 72, centered
+	// cols
+    CropMode_x0[4] = 288;
+    CropMode_x1[4] = 383;
+    // rows
+    CropMode_y0[4] = 208;
+    CropMode_y1[4] = 367;
+    CropMode_fps[4] = 2000.0; //1949.824224992;
+    CropMode_tint[4] = 0.0001; //0.009995574;
+	
 
     // OFFSET -32 pix in X (Y band)
-    for(i=0; i<5; i++)
+    for(i=0; i<6; i++)
     {
         // cols
-        CropMode_x0[i+5] = CropMode_x0[i]-32;
-        CropMode_x1[i+5] = CropMode_x1[i]-32;
+        CropMode_x0[i+6] = CropMode_x0[i]-32;
+        CropMode_x1[i+6] = CropMode_x1[i]-32;
         // rows
-        CropMode_y0[i+5] = CropMode_y0[i];
-        CropMode_y1[i+5] = CropMode_y1[i];
-        CropMode_fps[i+5] = CropMode_fps[i];
-        CropMode_tint[i+5] = CropMode_tint[i];
+        CropMode_y0[i+6] = CropMode_y0[i];
+        CropMode_y1[i+6] = CropMode_y1[i];
+        CropMode_fps[i+6] = CropMode_fps[i];
+        CropMode_tint[i+6] = CropMode_tint[i];
     }
 
 
