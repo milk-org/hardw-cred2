@@ -31,7 +31,7 @@ int cam = 0;
 
 
 // CROP MODES
-#define NBcropModes 10
+#define NBcropModes 12
 
 int CropMode_x0[NBcropModes];
 int CropMode_x1[NBcropModes];
