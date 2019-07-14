@@ -122,7 +122,7 @@ int init_CropModes()
     CropMode_x1[5] = 383;
     // rows
     CropMode_y0[5] = 208;
-    CropMode_y1[5] = 367;
+    CropMode_y1[5] = 303;
     CropMode_fps[5] = 2000.0; //1949.824224992;
     CropMode_tint[5] = 0.0001; //0.009995574;
 	
