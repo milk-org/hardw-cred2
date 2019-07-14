@@ -118,8 +118,8 @@ int init_CropModes()
 
 	// 96 x 72, centered
 	// cols
-    CropMode_x0[5] = 288;
-    CropMode_x1[5] = 383;
+    CropMode_x0[5] = 256;
+    CropMode_x1[5] = 351;
     // rows
     CropMode_y0[5] = 220;
     CropMode_y1[5] = 291;
