@@ -19,18 +19,13 @@ See vendor [product link](https://edt.com/product/visionlink-f4/) and [SDK](http
 	/opt/EDTpdv/
 	
 
-## Installing SDK
-
-Follow [instructions provided by EDT](https://edt.com/pdv_run_installation_instructions/)
+## Deps
 
 Installation requires kernel sources:
 
     sudo apt-get update
     sudo apt-get install linux-source
     sudo apt-get install linux-headers-generic
-
-Installation directory is /opt/EDT/ on scexao2 computer (kernel 3.13.0-144-generic)
-
 
 
 ## Installing EDT PDV software for Linux
@@ -44,6 +39,26 @@ Save the EDTpdv_lnx_5.5.5.1.run file to some temporary directory. Then change to
 
 Select default install directory when prompted (/opt/EDTpdv).
 Install takes a couple of minutes.
+
+
+#### Provisional bugfix
+
+Note: Ubuntu 20.04, kernel 5.4.0, the install wouldn't work, failing at the module compilation and with a less than helpful error message telling to check if linux sources are installed. Checking the `make` log point to:
+
+	No rule to make target 'arch/x86/tools/relocs_32.c', needed by 'arch/x86/tools/relocs_32.o'.  Stop.
+	
+This can be fixed, going in `/opt/EDTpdv/module/Makefile` and amending (line 90):
+
+	$(MAKE) -C $(KDIR) V=1 SUBDIRS=$(CURDIR) modules # 1>make.output
+	into
+	$(MAKE) -C $(KDIR) M=$(shell pwd) V=1 SUBDIRS=$(CURDIR) modules # 1>make.output
+	
+The magic involved here is beyond me, but it worked.
+Complete the installation by running, `/opt/EDTpdv`:
+
+	sudo setup.sh
+	
+####  Post checks
 
 After installation, the kernel module edt should be loaded. Command:
 
