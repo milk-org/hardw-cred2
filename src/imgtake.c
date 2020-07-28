@@ -154,7 +154,19 @@ int main(int argc, char **argv)
                     printf("Error: option 'u' requires a numeric argument (0, 1 or 2)\n");
                 }
                 break;
-
+	    
+            case 'c':
+		++argv;
+		--argc;
+		if (argc < 1) {
+			printf("Error: option 'c' requires a numeric argument (0 or 1)\n");
+		}
+		if ((argv[0][0] >= '0') && (argv[0][0] <= '2')) {
+			channel = atoi(argv[0]);
+		} else {
+			printf("Error: option 'c' requires a numeric argument (0 or 1)\n");
+		}
+		break;
 
             case 'l':
                 ++argv;
@@ -220,7 +232,7 @@ int main(int argc, char **argv)
         strcpy(edt_devname, EDT_INTERFACE);
     }
 	
-	printf("edt_devname = %s   unit = %d\n", edt_devname, unit);
+	printf("edt_devname = %s   unit = %d    channel = %d\n", edt_devname, unit, channel);
 	int cam = 0;
 	
     if ((pdv_p = pdv_open_channel(edt_devname, unit, channel)) == NULL)
@@ -293,6 +305,7 @@ int main(int argc, char **argv)
 	// allocate space for 10 keywords
 	NBkw = 10;
 	sprintf(camname, "ircam%d", unit);
+	// GLINT
 	ImageStreamIO_createIm(&imarray[0], camname, naxis, imsize, atype, shared, NBkw);
 	free(imsize);
 
@@ -422,10 +435,10 @@ int main(int argc, char **argv)
 	int loopOK = 1;
     while(loopOK == 1)
     {
-		imarray[0].kw[0].value.numf = ircamconf[unit].tint;
-		imarray[0].kw[1].value.numf = ircamconf[unit].fps;
-		imarray[0].kw[2].value.numl = ircamconf[unit].NDR;
-		imarray[0].kw[7].value.numf = ircamconf[unit].temperature;
+	imarray[0].kw[0].value.numf = ircamconf[unit].tint;
+	imarray[0].kw[1].value.numf = ircamconf[unit].fps;
+	imarray[0].kw[2].value.numl = ircamconf[unit].NDR;
+	imarray[0].kw[7].value.numf = ircamconf[unit].temperature;
         /*
          * get the image and immediately start the next one (if not the last
          * time through the loop). Processing (saving to a file in this case)
