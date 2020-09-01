@@ -1,3 +1,6 @@
+# Target compiles
+
+
 # Prerequisites
 *.d
 
@@ -50,3 +53,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Stack dumps from streamCTRL
+exitreport-SIGSEGV.*
+
+# Target binaries
+src/imgtake
+src/ircamserver

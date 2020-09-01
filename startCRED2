@@ -3,7 +3,8 @@
 # CRED2 camera startup script
 
 # number of arguments to script
-NBARGS=1
+NBARGS_MIN=1
+NBARGS_MAX=2
 
 
 # ======================= PROCESS NAME =================================
@@ -31,6 +32,7 @@ echo "     $(tput bold)-h$(tput sgr0)          help"
 echo ""
 echo " $(tput bold)INPUT:$(tput sgr0)"
 echo "     <CAM number>     camera number (0 or 1)"
+echo "     <cmode>	    initial cropmode (defaults to 0)"
 echo ""
 echo "------------------------------------------------------------------------"
 }
@@ -126,7 +128,7 @@ done
 
 shift $((OPTIND-1))  #This tells getopts to move on to the next argument.
 ### End getopts code ###
-if [ "$1" = "help" ] || [ "$#" -ne $NBARGS ]; then
+if [ "$1" = "help" ] || [ "$#" -lt $NBARGS_MIN ] || [ "$#" -gt $NBARGS_MAX ]; then
 if [ "$#" -ne $NBARGS ]; then
     echo "$(tput setaf 1)$(tput bold) Illegal number of parameters ($NBARGS params required, $# entered) $(tput sgr0)"
 fi
@@ -167,10 +169,12 @@ fi
 
 
 unit="$1"
+cropmode="$2"
+if [ -z "${cropmode}" ]; then
+	cropmode="0"
+fi
 
-echo "STARTING CRED2 CAMERA UNIT $unit"
-
-
+echo "STARTING CRED2 CAMERA UNIT $unit using initial cropmode $cropmode"
 
 /opt/EDTpdv/initcam -c 0 -u $unit -f ${EDTCONFFILE}
 
@@ -191,7 +195,7 @@ sleep 0.5
 tmux send-keys -t ircam${unit}ctrl "./ircamserver -u ${unit}" C-m
 
 
-tmux send-keys -t ircam${unit}ctrl "setcrop 0" C-m
+tmux send-keys -t ircam${unit}ctrl "setcrop ${cropmode}" C-m
 
 #tmux send-keys -t ircam0ctrl "start" C-m
 

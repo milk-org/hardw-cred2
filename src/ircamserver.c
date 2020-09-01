@@ -31,7 +31,7 @@ int cam = 0;
 
 
 // CROP MODES
-#define NBcropModes 12
+#define NBcropModes 13
 
 int CropMode_x0[NBcropModes];
 int CropMode_x1[NBcropModes];
@@ -116,8 +116,8 @@ int init_CropModes()
     CropMode_tint[4] = 0.000449819; //0.009995574;
 
 
-	// 96 x 72, centered
-	// cols
+    // 96 x 72, centered
+    // cols
     CropMode_x0[5] = 256;
     CropMode_x1[5] = 351;
     // rows
@@ -126,6 +126,18 @@ int init_CropModes()
     CropMode_fps[5] = 8002.636203000; //1949.824224992;
     CropMode_tint[5] = 0.000121555; //0.009995574;
 	
+
+    // Added for GLINT only
+    // 96 x 344, centered
+    // cols
+    CropMode_x0[12] = 224;
+    CropMode_x1[12] = 319;
+    // rows
+    CropMode_y0[12] = 80;
+    CropMode_y1[12] = 423;
+    CropMode_fps[12] = 1394.833104000;
+    CropMode_tint[12] = 0.000711851;
+
 
     // OFFSET -32 pix in X (Y band)
     for(i=0; i<6; i++)
