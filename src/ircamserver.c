@@ -425,56 +425,75 @@ int main(int     argc,    char  **argv)
     int baud = 115200;
     int timeout = 0;
 
-    char    tmpbuf[SERBUFSIZE+1];
+    char    tmpbuf[SERBUFSIZE + 1];
     char    serialcmd[200];
     char 	outbuf[2000];
 
     init_CropModes();
+
+	char streamname[200];
+	int STREAMNAMEINIT = 0;
 
     /*
     * process command line arguments
     */
     --argc;
     ++argv;
-    while (argc && ((argv[0][0] == '-') || (argv[0][0] == '/')))
+    while(argc && ((argv[0][0] == '-') || (argv[0][0] == '/')))
     {
-        switch (argv[0][1])
+        switch(argv[0][1])
         {
-        case 'u':
-            ++argv;
-            --argc;
-            if (argc < 1)
-            {
-                printf("Error: option 'u' requires a numeric argument (0 , 1, or 2)\n");
-            }
-            if ((argv[0][0] >= '0') && (argv[0][0] <= '2'))
-            {
-                unit = atoi(argv[0]);
-            }
-            else
-            {
-                printf("Error: option 'u' requires a numeric argument (0, 1 or 2)\n");
-            }
-            break;
+            case 'u':
+                ++argv;
+                --argc;
+                if(argc < 1)
+                {
+                    printf("Error: option 'u' requires a numeric argument (0 , 1, or 2)\n");
+                }
+                if((argv[0][0] >= '0') && (argv[0][0] <= '2'))
+                {
+                    unit = atoi(argv[0]);
+                }
+                else
+                {
+                    printf("Error: option 'u' requires a numeric argument (0, 1 or 2)\n");
+                }
+                break;
 
-        case '-':
-            if (strcmp(argv[0], "--help") == 0) {
+            case 's':
+                ++argv;
+                --argc;
+                if(argc < 1)
+                {
+                    printf("Error: option 's' requires string argument\n");
+                }
+                strcpy(streamname, argv[0]);
+                printf("Using stream name %s\n", streamname);
+                STREAMNAMEINIT = 1;
+                break;
+
+
+            case '-':
+                if(strcmp(argv[0], "--help") == 0)
+                {
+                    printhelp();
+                    exit(0);
+                }
+                else
+                {
+                    fprintf(stderr, "unknown option: %s\n", argv[0]);
+                    printhelp();
+                    exit(1);
+                }
+                break;
+
+
+            default:
+                fprintf(stderr, "unknown flag -'%c'\n", argv[0][1]);
+            case '?':
+            case 'h':
                 printhelp();
                 exit(0);
-            } else {
-                fprintf(stderr, "unknown option: %s\n", argv[0]);
-                printhelp();
-                exit(1);
-            }
-            break;
-
-
-        default:
-            fprintf(stderr, "unknown flag -'%c'\n", argv[0][1]);
-        case '?':
-        case 'h':
-            printhelp();
-            exit(0);
         }
         argc--;
         argv++;
@@ -772,7 +791,14 @@ int main(int     argc,    char  **argv)
             {				
                 sscanf(cmdstring, "%s %d", str0, &d0);
                 printf("Taking %d image(s)\n", d0);
-                sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l %d\" C-m", unit, unit, d0);
+                if (STREAMNAMEINIT == 0)
+                {
+					sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l %d\" C-m", unit, unit, d0);
+				}
+				else
+				{
+					sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0 -s %s\" C-m", unit, unit, streamname);
+				}
                 system(command);
                 cmdOK = 1;
             }
@@ -781,7 +807,15 @@ int main(int     argc,    char  **argv)
             if(strncmp(cmdstring, "start", strlen("start")) == 0)
             {
 				printf("Starting acquisition\n");
-                sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0\" C-m", unit, unit);
+				
+				if (STREAMNAMEINIT == 0)
+				{
+					sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0\" C-m", unit, unit);
+				}
+				else
+				{
+					sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0 -s %s\" C-m", unit, unit, streamname);
+				}
                 system(command);
                 sleep(1.0);
                 system("./imgtakeCPUconf");
@@ -869,7 +903,17 @@ int main(int     argc,    char  **argv)
                     printf("outbuf: \n%s\n", outbuf);
                     sleep(1);
 
-                    sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0\" C-m", unit, unit);
+                    //sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0\" C-m", unit, unit);
+					
+					if (STREAMNAMEINIT == 0)
+					{
+						sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0\" C-m", unit, unit);
+					}
+					else
+					{
+						sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0 -s %s\" C-m", unit, unit, streamname);
+					}                    
+                                        
                     system(command);
                 }
                 cmdOK = 1;
@@ -922,8 +966,19 @@ int main(int     argc,    char  **argv)
                 printf("outbuf: \n%s\n", outbuf);
 
                 sleep(2);
+                
+                
+                if (STREAMNAMEINIT == 0)
+				{
+					sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0\" C-m", unit, unit);
+				}
+				else
+				{
+					sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0 -s %s\" C-m", unit, unit, streamname);
+				}
 
-                sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0\" C-m", unit, unit);
+                //sprintf(command, "tmux send-keys -t ircam%drun \"./imgtake -u %d -l 0\" C-m", unit, unit);
+
                 system(command);
 
                 cmdOK = 1;

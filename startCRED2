@@ -105,9 +105,10 @@ singlelinehelp=1;
   esac
 done
 
+CUSTOMSNAME=0
+STREAMNAME="cam"
 
-
-while getopts :hH:L:N:Cc FLAG; do
+while getopts :hs: FLAG; do
   case $FLAG in
     h)  #show help
       if [ "$singlelinehelp" -eq "0" ]; then
@@ -117,6 +118,10 @@ while getopts :hH:L:N:Cc FLAG; do
       fi
       exit
       ;;
+    s) # specify stream name
+      STREAMNAME=${OPTARG}
+      CUSTOMSNAME=1
+    ;;
     \?) #unrecognized option - show help
       echo -e \\n"Option -${BOLD}$OPTARG${NORM} not allowed."
       printHELP
@@ -192,8 +197,11 @@ tmux send-keys -t ircam${unit}ctrl "cd ${SRCDIR}" C-m
 tmux send-keys -t ircam${unit}run "cd ${SRCDIR}" C-m
 sleep 0.5
 
+if [ ${CUSTOMSNAME} = 0 ]; then
 tmux send-keys -t ircam${unit}ctrl "./ircamserver -u ${unit}" C-m
-
+else
+tmux send-keys -t ircam${unit}ctrl "./ircamserver -u ${unit} -s ${STREAMNAME}" C-m
+fi
 
 tmux send-keys -t ircam${unit}ctrl "setcrop ${cropmode}" C-m
 
