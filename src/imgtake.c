@@ -282,9 +282,6 @@ int main(int argc, char **argv)
     int shared;        // 1 if image in shared memory
     int NBkw;          // number of keywords supported
 
-
-
-
     if(ircamconf[unit].cropmode == 1)
     {
         printf("CROP mode ON\n");
@@ -306,7 +303,6 @@ int main(int argc, char **argv)
         pdv_set_width(pdv_p, xsize);
         pdv_set_height(pdv_p, ysize);
     }
-
 
     width = pdv_get_width(pdv_p);
     height = pdv_get_height(pdv_p);
@@ -619,6 +615,7 @@ usage(char *progname, char *errmsg)
            progname);
     printf("  -s streamname   output stream name (default: ircam<unit>\n");
     printf("  -u unit         set unit\n");
+    printf("  -c chan         set channel (1 tap, 1 cable)\n");
     printf("  -l loops        number of loops (images to take)\n");
     printf("  -N numbufs      number of ring buffers (see users guide) (default 4)\n");
     printf("  -h              this help message\n");
