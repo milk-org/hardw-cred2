@@ -4,6 +4,8 @@ ISIO_ROOT=${MILK_ROOT}/src/ImageStreamIO
 
 
 gcc imgtake.c cred2struct.c -o imgtake -I/opt/EDTpdv -I${ISIO_ROOT} -I${CACAO_ROOT}/src ${ISIO_ROOT}/ImageStreamIO.c /opt/EDTpdv/libpdv.a -Wall -lm -lpthread -ldl
+gcc imgtake_ocam.c -o imgtake_ocam -I/opt/EDTpdv -I${ISIO_ROOT} -I${CACAO_ROOT}/src ${ISIO_ROOT}/ImageStreamIO.c /opt/EDTpdv/libpdv.a -Wall -lm -lpthread -ldl
+gcc imgtake_ocam-16bit.c -o imgtake_ocam-16bit -I/opt/EDTpdv -I${ISIO_ROOT} -I${CACAO_ROOT}/src ${ISIO_ROOT}/ImageStreamIO.c /opt/EDTpdv/libpdv.a -Wall -lm -lpthread -ldl
 
 gcc ircamserver.c cred2struct.c -o ircamserver -I/opt/EDTpdv /opt/EDTpdv/libpdv.a -lm -lpthread -ldl
 
