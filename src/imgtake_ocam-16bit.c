@@ -322,17 +322,7 @@ int main(int argc, char **argv)
     sprintf(imnamec1, "%s_cube1", streamname);
     ImageStreamIO_createIm(&imarray[2], imnamec1, naxis, imsize, atype, shared,
                            NBkw);
-
-	// testing
-	sprintf(imnamec0, "%s_cube2", streamname);
-    ImageStreamIO_createIm(&imarray[3], imnamec0, naxis, imsize, atype, shared,
-                           NBkw);
-    sprintf(imnamec1, "%s_cube3", streamname);
-    ImageStreamIO_createIm(&imarray[4], imnamec1, naxis, imsize, atype, shared,
-                           NBkw);
-
                            
-
     free(imsize);
 
 
