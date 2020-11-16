@@ -294,8 +294,7 @@ int main(int argc, char **argv)
 		sprintf(streamname, "ircam%d", unit);
 		STREAMNAMEINIT = 1;
 	}
-
-
+	
     ImageStreamIO_createIm(&imarray[0], streamname, naxis, imsize, atype, shared,
                            NBkw);
     free(imsize);
@@ -312,11 +311,11 @@ int main(int argc, char **argv)
     char imnamec1[200];
     uint32_t CUBEsize = 1000;
     naxis = 3;
+    imsize = (uint32_t *) malloc(sizeof(uint32_t) * naxis);
     imsize[0] = width;
     imsize[1] = height;
     imsize[2] = CUBEsize;
-    atype = _DATATYPE_UINT16;
-    imsize = (uint32_t *) malloc(sizeof(uint32_t) * naxis);
+    atype = _DATATYPE_UINT16;    
     sprintf(imnamec0, "%s_cube0", streamname);
     ImageStreamIO_createIm(&imarray[1], imnamec0, naxis, imsize, atype, shared,
                            NBkw);
