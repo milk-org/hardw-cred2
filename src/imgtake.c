@@ -275,7 +275,7 @@ int main(int argc, char **argv)
 
 
     IMAGE *imarray;    // pointer to array of images
-    int NBIMAGES = 3;  // can hold 1 image
+    int NBIMAGES = 5;  // can hold multiple image
     long naxis;        // number of axis
     uint8_t atype;     // data type
     uint32_t *imsize;  // image size
@@ -343,8 +343,10 @@ int main(int argc, char **argv)
 
     // SAVING CUBES TO DISK
     // CHANGE NBIMAGES to 3
-    int SAVECUBE =
-        0; // change to 1 when saving -> move to shared mem for interactive control
+    
+    int SAVECUBE = 0; 
+    // change to 1 when saving -> move to shared mem for interactive control
+    
     int CUBEindex = 0; // 0 or 1
     long frameindex = 0;
     char imnamec0[200];
@@ -362,6 +364,16 @@ int main(int argc, char **argv)
     sprintf(imnamec1, "%s_cube1", streamname);
     ImageStreamIO_createIm(&imarray[2], imnamec1, naxis, imsize, atype, shared,
                            NBkw);
+
+	// testing
+	sprintf(imnamec0, "%s_cube2", streamname);
+    ImageStreamIO_createIm(&imarray[3], imnamec0, naxis, imsize, atype, shared,
+                           NBkw);
+    sprintf(imnamec1, "%s_cube3", streamname);
+    ImageStreamIO_createIm(&imarray[4], imnamec1, naxis, imsize, atype, shared,
+                           NBkw);
+
+                           
     free(imsize);
 
 
