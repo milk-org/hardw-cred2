@@ -60,3 +60,4 @@ exitreport-SIGSEGV.*
 # Target binaries
 src/imgtake
 src/ircamserver
+imgtake_ocam-16bit

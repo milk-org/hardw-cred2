@@ -394,6 +394,7 @@ int main(int argc, char **argv)
      * images or that take a serial command to start every image) don't
      * tolerate queueing of multiple images
      */
+    
     if(pdv_p->dd_p->force_single)
     {
         pdv_start_image(pdv_p);
@@ -402,9 +403,13 @@ int main(int argc, char **argv)
     {
         pdv_start_images(pdv_p, numbufs);
     }
+    
     printf("\n");
     i = 0;
     int loopOK = 1;
+
+    int images_skipped = 0;
+
     while(loopOK == 1)
     {
         /*
@@ -413,7 +418,10 @@ int main(int argc, char **argv)
          * can then occur in parallel with the next acquisition
          */
 
-        image_p = pdv_wait_image(pdv_p);
+        image_p = pdv_wait_last_image(pdv_p, &images_skipped);
+	if(images_skipped > 0) {
+		printf("wait_last_image: %d misses\n", images_skipped);
+	}
 
         if((overrun = (edt_reg_read(pdv_p, PDV_STAT) & PDV_OVERRUN)))
         {
@@ -445,6 +453,7 @@ int main(int argc, char **argv)
         {
             pdv_timeout_restart(pdv_p, TRUE);
             recovering_timeout = FALSE;
+
             printf("\nrestarted....\n");
         }
 
