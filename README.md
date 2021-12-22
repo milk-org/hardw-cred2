@@ -1,5 +1,11 @@
 # hardw-cred2
 
+-----
+WARNING: deprecated - see [camstack repository](https://github.com/scexao-org/camstack) instead.
+In particular, see the barebone freerun FG -> milk grabbing utility `edttake.c` [here](https://github.com/scexao-org/camstack/blob/dev/src/edttake.c), evolution of this repos `imgtake.c` [here](https://github.com/milk-org/hardw-cred2/blob/master/src/imgtake.c)
+
+-----
+
 milk interface to C-RED 2 camera
 
 Using EDT frame grabber Camera Link frame grabber for PCI Express / x4.
